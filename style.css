@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f5;
+    color: #222222;
+    margin: 0;
+    padding: 20px;
+}
+
+.panel {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+}
+
+#contenedor-bienvenida h2 {
+    margin: 0 0 5px 0;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+input[type="color"] {
+    height: 40px;
+    padding: 2px;
+}
+
+.acciones {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+}
+
+body.tema-claro {
+    color: #ffffff;
+}
+
+body.tema-oscuro {
+    background-color: #1a1a1f;
+    color: #f0f0f0;
+}
+
+body.tema-oscuro .panel {
+    background-color: #2a2a33;
+    border-color: #555555;
+}
+
+body.tema-oscuro input,
+body.tema-oscuro select {
+    background-color: #3a3a45;
+    color: #f0f0f0;
+    border: 1px solid #666666;
+}

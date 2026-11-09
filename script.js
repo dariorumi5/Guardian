@@ -1,0 +1,166 @@
+// Nombres de las tres cookies que vamos a crear
+const COOKIE_NOMBRE = "nombre";
+const COOKIE_COLOR = "color";
+const COOKIE_TEMA = "tema";
+
+const DIAS_CADUCIDAD = 7;
+
+const CLASES_TEMA = ["tema-claro", "tema-oscuro"];
+
+const contenedor = document.getElementById("contenedor-bienvenida"); // aquí irá la bienvenida
+const formulario = document.getElementById("formulario");            // el formulario entero
+const campoNombre = document.getElementById("nombre-usuario");       // campo de texto
+const campoColor = document.getElementById("color-fondo");           // selector de color
+const campoTema = document.getElementById("tema-visual");            // menú desplegable
+
+
+/**
+ * @param {string} nombre - Nombre de la cookie.
+ * @param {string} valor - Valor a guardar.
+ * @param {Date} [fechaExpiracion] - Fecha de caducidad. Si no se pasa,
+ *   la cookie es de SESIÓN (se borra al cerrar el navegador).
+ * @returns {void}
+ */
+function setCookie(nombre, valor, fechaExpiracion) {
+    // encodeURIComponent protege los espacios y caracteres especiales del valor
+    let cookie = nombre + "=" + encodeURIComponent(valor);
+
+    // Solo añadimos "expires" si nos han dado fecha; sin él, la cookie es de sesión
+    if (fechaExpiracion) {
+        cookie += "; expires=" + fechaExpiracion.toUTCString(); // la fecha debe ir en formato UTC
+    }
+
+    // path=/ hace que la cookie sea accesible desde toda la web
+    cookie += "; path=/";
+
+    // Asignar a document.cookie crea/actualiza SOLO esta cookie, no borra las demás
+    document.cookie = cookie;
+}
+
+/**
+ * @param {string} nombre - Nombre de la cookie buscada.
+ * @returns {string|null} El valor, o null si la cookie no existe.
+ */
+function getCookie(nombre) {
+    // Separar el texto en pares "clave=valor"
+    const pares = document.cookie.split("; ");
+
+    // Recorremos cada par buscando el que tenga el nombre que queremos
+    for (let par of pares) {
+        const [clave, valor] = par.split("=");
+
+        // Si coincide la clave, devolvemos el valor ya decodificado
+        if (clave === nombre) {
+            return decodeURIComponent(valor);
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param {string} nombre - Nombre del usuario, que se muestra en el saludo.
+ * @returns {void}
+ */
+function mostrarBienvenida(nombre) {
+    const texto = "¡Hola de nuevo, " + nombre + "!";
+
+    // Si ya hay una bienvenida en la página, solo cambiamos el saludo
+    const existente = document.getElementById("bloque-bienvenida");
+    if (existente) {
+        existente.querySelector("h2").textContent = texto;
+        return;
+    }
+
+    // PASO 1 - CREAR los elementos en memoria (todavía no se ven en la página)
+    const bloque = document.createElement("div");
+    bloque.id = "bloque-bienvenida";
+    const titulo = document.createElement("h2");
+    const parrafo = document.createElement("p");
+
+    // PASO 2 - CONFIGURAR: ponerles el texto
+    titulo.appendChild(document.createTextNode(texto));
+    parrafo.textContent = "Tus preferencias se han cargado correctamente.";
+
+    // PASO 3 - INSERTAR: título y párrafo dentro del bloque, y el bloque dentro del contenedor que ya existe en el HTML
+    bloque.appendChild(titulo);
+    bloque.appendChild(parrafo);
+    contenedor.appendChild(bloque);
+}
+
+/**
+ * Cambia el color de fondo de la página.
+ * @param {string} color - Color en formato hexadecimal.
+ * @returns {void}
+ */
+function aplicarColor(color) {
+    document.body.style.backgroundColor = color;
+}
+
+/**
+ * Cambia el tema visual activando una clase CSS del body.
+ * @param {"claro"|"oscuro"} tema - Tema que se quiere activar.
+ * @returns {void}
+ */
+function aplicarTema(tema) {
+    document.body.classList.remove(...CLASES_TEMA);
+
+    document.body.classList.add("tema-" + tema);
+}
+
+/**
+ * Lee las cookies y restaura la interfaz y los campos del formulario.
+ * @returns {void}
+ */
+function cargarPreferencias() {
+    // Si una cookie no existe, getCookie devuelve null
+    const nombre = getCookie(COOKIE_NOMBRE);
+    const color = getCookie(COOKIE_COLOR);
+    const tema = getCookie(COOKIE_TEMA);
+
+    // Por cada dato guardado: lo aplicamos a la página Y rellenamos el formulario
+    if (color) {
+        aplicarColor(color);
+        campoColor.value = color;
+    }
+    if (tema) {
+        aplicarTema(tema);
+        campoTema.value = tema;
+    }
+    if (nombre) {
+        campoNombre.value = nombre;
+        mostrarBienvenida(nombre);
+    }
+}
+
+campoColor.addEventListener("input", () => {
+    aplicarColor(campoColor.value);
+});
+
+
+campoTema.addEventListener("change", () => {
+    aplicarTema(campoTema.value);
+});
+
+formulario.addEventListener("submit", (evento) => {
+    // Evita que el navegador recargue la página al enviar el formulario
+    evento.preventDefault();
+
+    const nombre = campoNombre.value.trim(); // trim() quita espacios sobrantes
+
+    // Fecha de caducidad: hoy + 7 días
+    const caducidad = new Date();
+    caducidad.setDate(caducidad.getDate() + DIAS_CADUCIDAD);
+
+    setCookie(COOKIE_NOMBRE, nombre, caducidad);      // caduca en 7 días
+    setCookie(COOKIE_COLOR, campoColor.value, caducidad); // caduca en 7 días
+    setCookie(COOKIE_TEMA, campoTema.value);          // SIN fecha = cookie de sesión
+
+    // Mostramos la bienvenida solo si hay nombre
+    if (nombre) {
+        mostrarBienvenida(nombre);
+    }
+});
+
+// Arranque: al cargar la página, restauramos lo que haya en las cookies
+cargarPreferencias();

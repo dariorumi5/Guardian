@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Personalizador de interfaz</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+    <main class="panel">
+        <h1>Personaliza tu entorno</h1>
+
+        <!-- Contenedor vacío: el bloque de bienvenida se inyecta desde script.js -->
+        <div id="contenedor-bienvenida"></div>
+
+        <form id="formulario" autocomplete="off">
+            <label for="nombre-usuario">Nombre de usuario</label>
+            <input type="text" id="nombre-usuario" placeholder="Tu nombre">
+
+            <label for="color-fondo">Color de fondo</label>
+            <input type="color" id="color-fondo" value="#ffffff">
+
+            <label for="tema-visual">Tema visual</label>
+            <select id="tema-visual">
+                <option value="claro">Modo Claro</option>
+                <option value="oscuro">Modo Oscuro</option>
+            </select>
+
+            <div class="acciones">
+                <!-- type="submit": al pulsarlo se dispara el evento "submit" del formulario -->
+                <button type="submit">Guardar Preferencias</button>
+            </div>
+        </form>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
