@@ -5,17 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
-  build-deploy:
+  docs:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -23,10 +17,10 @@ jobs:
         with:
           node-version: 20
 
-      # 1) Generar JSDoc en la carpeta "documentacion" y guardarla en el repo
-      - run: npm install
-      - run: npm run docs
-      - name: Commit de la documentación
+      - name: Generar JSDoc
+        run: npx --yes jsdoc script.js -d documentacion
+
+      - name: Guardar documentación en el repo
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -34,14 +28,29 @@ jobs:
           git diff --staged --quiet || git commit -m "docs: actualizar JSDoc"
           git push
 
-      # 2) Publicar en Pages SOLO la web (sin la carpeta de documentación)
+  deploy:
+    needs: docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Preparar sitio
         run: |
           mkdir public
-          cp index.html estilos.css script.js public/
+          cp index.html styles.css script.js public/
+
       - uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
+
       - id: deployment
         uses: actions/deploy-pages@v4
